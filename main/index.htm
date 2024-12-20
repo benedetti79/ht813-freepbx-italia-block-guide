@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="Content-Language" content="it">
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<link rel="shortcut icon" type="image/x-icon" href="/tutorial/favicon.ico">
+<title>Guida all'integrazione di una linea analogica con FreePBX e HT813</title>
+
+<style>
+/* Applicare margini separati a tutta la pagina */
+body {
+    margin-top: 50px;    /* Margine superiore */
+    margin-right: 50px;  /* Margine destro */
+    margin-bottom: 50px; /* Margine inferiore */
+    margin-left: 50px;   /* Margine sinistro */
+
+    color: black;
+    font-size: 19px;
+    font-family: 'Calibri';
+
+}
+</style>
+
+</head>
+
+<body>
+
+ <p xmlns:cc="http://creativecommons.org/ns#" >This work is licensed under <a href="https://creativecommons.org/licenses/by-sa/4.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer" style="display:inline-block;">Creative Commons Attribution-ShareAlike 4.0 International<img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/cc.svg?ref=chooser-v1" alt=""><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/by.svg?ref=chooser-v1" alt=""><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/sa.svg?ref=chooser-v1" alt=""></a></p> 
+
+<p align="center" style="margin-top: 0; margin-bottom: 0"><b>
+<span style="color: #FF0000; font-size: 24px;">GUIDA ALL'INTEGRAZIONE DI UNA 
+LINEA ANALOGICA CON FREEPBX TRAMITE GRANDSTREAM HT813, CON CONFIGURAZIONE 
+SPECIFICA PER L'ITALIA, PER IL BLOCCO DI TUTTE LE CHIAMATE, ECCETTO QUELLE IN 
+WHITELIST</span></b></p>
+<p style="margin-top: 0; margin-bottom: 0">&nbsp;</p>
+<p style="margin-top: 0; margin-bottom: 0">&nbsp;</p>
+<p style="margin-top: 0; margin-bottom: 0"><b>
+Introduzione: Blocco delle Chiamate con FreePBX e HT813</b><br>
+<br>
+Nel mondo delle telecomunicazioni, spesso ci si trova a dover fronteggiare il 
+fastidio delle chiamate indesiderate, come lo spam o il telemarketing. Per 
+evitare tutto ciò, ho adottato una strategia semplice ed efficace: una lista 
+bianca. Tutti i numeri non memorizzati in questo elenco, vengono bloccati 
+automaticamente. Questa soluzione mi permette di evitare l'inconveniente di 
+chiamate indesiderate, dato che ricevo continuamente spam da numeri infiniti e 
+sempre diversi. Poiché non utilizzo il telefono per lavoro (e le chiamate da 
+numeri sconosciuti sono rare e generalmente poco significative), ho preferito 
+questa soluzione rispetto all'uso di una lista nera.<br>
+&nbsp;<br>
+Nel caso si voglia adottare una strategia differente, con poche modifiche è 
+possibile implementare una lista nera, bloccando solo i numeri considerati 
+problematici e aprendo le porte per tutto il resto. Inoltre, se si preferisce 
+non perdere telefonate importanti, è possibile attivare la segreteria per le 
+chiamate rifiutate, così da garantire che nessuna chiamata importante venga 
+ignorata.<br>
+&nbsp;<br>
+In questa guida, descriverò il mio approccio per il blocco delle chiamate 
+utilizzando FreePBX e HT813, con un focus principale sulla lista bianca. 
+Tuttavia, lascio spazio a voi per esplorare e condividere nuove funzionalità non 
+trattate, poiché FreePBX e il VoIP sono strumenti molto potenti e flessibili. 
+Potete ampliare la guida con commenti e suggerimenti per migliorare 
+ulteriormente il sistema.<br>
+&nbsp;<br>
+<b>Descrizione del Problema</b><br>
+<br>
+Il problema che ho affrontato consisteva nel dover bloccare tutte le chiamate in 
+entrata, tranne quelle provenienti da numeri specifici considerati sicuri. 
+Questo è particolarmente utile per evitare chiamate indesiderate (spam, 
+telemarketing, ecc.) senza dover gestire una lista nera che spesso è difficile 
+da mantenere, vista la continua variazione dei numeri da cui arrivano le 
+chiamate spam.<br>
+&nbsp;<br>
+<b>Collegamenti</b><br>
+&nbsp;<br>
+- Lo schema mostra i collegamenti hardware di come installare il tutto.<br>
+&nbsp;</p>
+<p style="margin-top: 0; margin-bottom: 0">
+
+<img border="0" src="img/schema%20hardware.png" width="341" height="490"></p>
+<p style="margin-top: 0; margin-bottom: 0">
+&nbsp;</p>
+
+<ul>
+	<li>
+	<p style="margin-top: 0; margin-bottom: 0"><b>
+	Linea PSTN Analogica: </b>La tua linea telefonica analogica tradizionale. In 
+	caso di fibra, la porta del vostro modem/router dove attaccate il vostro 
+	cordless.<br>
+&nbsp;</li>
+	<li>
+	<p style="margin-top: 0; margin-bottom: 0"><b>
+	Impianto analogico:</b> Il tuo impianto telefonico tradizionale allacciato 
+	alla linea telefonica fissa.<br>
+&nbsp;</li>
+	<li>
+	<p style="margin-top: 0; margin-bottom: 0"><b>
+	Telefono VoIPx:</b> Un telefono che si connette direttamente alla rete dati 
+	e utilizza il protocollo VoIP per effettuare chiamate.<br>
+&nbsp;</li>
+	<li>
+	<p style="margin-top: 0; margin-bottom: 0"><b>
+	Adattatore ATA (Grandstream HT813):</b> Un dispositivo che converte i 
+	segnali analogici della linea PSTN in segnali digitali VoIP e viceversa.<br>
+&nbsp;</li>
+	<li>
+	<p style="margin-top: 0; margin-bottom: 0"><b>
+	Router Internet (Access Point): </b>Il dispositivo che gestisce la tua 
+	connessione a Internet.<br>
+&nbsp;</li>
+	<li>
+	<p style="margin-top: 0; margin-bottom: 0"><b>
+	Server FreePBX: </b>Un software che gestisce il tuo sistema telefonico VoIP, 
+	fungendo da centralino.<br>
+&nbsp;</li>
+	<li>
+	<p style="margin-top: 0; margin-bottom: 0"><b>
+	PC1 VoIP1 e Android VoIP2:</b> Usando software FREE tipo “linphone”
+	<a href="https://www.linphone.org/home/">https://www.linphone.org/home/</a> 
+	è possibile usare cellulari o dispositivi come PC, esattamente come se 
+	fossero telefoni VoIP. Se nel vostro interno avete anche un server VPN, 
+	potete entrare in VPN da remoto e godere della vostra linea fissa anche se 
+	vi trovate fuori casa.</li>
+</ul>
+<p style="margin-top: 0; margin-bottom: 0"><b>&nbsp;</b></p>
+<p style="margin-top: 0; margin-bottom: 0"><b>
+Struttura del sistema:</b></p>
+<ul>
+	<li>
+	<p style="margin-top: 0; margin-bottom: 0">Il 
+	server <b>FreePBX</b> è allacciato al router, ha accesso a Internet e 
+	gestisce il routing delle chiamate in base all'origine e alla destinazione.<br>
+&nbsp;</li>
+	<li>
+	<p style="margin-top: 0; margin-bottom: 0">
+	Grandstream HT813 <b>(FXO) </b>è allacciato alla linea telefonica analogica 
+	(PSTN).<br>
+&nbsp;</li>
+	<li>
+	<p style="margin-top: 0; margin-bottom: 0">
+	Grandstream HT813 <b>(FXS)</b> è allacciato all’impianto analogico (ai tuoi 
+	telefoni cordless) e si registra come un'estensione sul server FreePBX.<br>
+&nbsp;</li>
+	<li>
+	<p style="margin-top: 0; margin-bottom: 0">I 
+	telefoni VoIP sono allacciati alla rete locale.</li>
+</ul>
+<p style="margin-top: 0; margin-bottom: 0">&nbsp;<br>
+<b>Funzionalità del sistema:</b></p>
+<ul>
+	<li>
+	<p style="margin-top: 0; margin-bottom: 0"><b>
+	Chiamate interne: </b>Le chiamate tra il telefono analogico e i telefoni 
+	VoIP vengono gestite internamente da FreePBX.<br>
+&nbsp;</li>
+	<li>
+	<p style="margin-top: 0; margin-bottom: 0"><b>
+	Chiamate esterne: </b>In questo caso, FreePBX Instrada le chiamate esterne 
+	verso la linea PSTN, componendo un “numero di Gateway, impostato in HT813”. 
+	Di seguito verrà illustrato nei dettagli.<br>
+&nbsp;</li>
+	<li>
+	<p style="margin-top: 0; margin-bottom: 0"><b>
+	Integrazione delle funzionalità:</b> Funzionalità come la segreteria 
+	telefonica, la registrazione delle chiamate e le conferenze, funzionano su 
+	tutti i dispositivi connessi.<br>
+&nbsp;</li>
+	<li>
+	<p style="margin-top: 0; margin-bottom: 0"><b>
+	Blocco per le chiamate: </b>FreePBX può bloccare le chiamate indesiderate, 
+	come lo spam telefonico.<br>
+&nbsp;</li>
+	<li>
+	<p style="margin-top: 0; margin-bottom: 0"><b>
+	Controllo avanzato:</b> FreePBX offre un controllo granulare sulle chiamate 
+	in entrata e in uscita, con la possibilità di configurare regole di routing, 
+	blacklist e altre funzionalità.</li>
+</ul>
+<p style="margin-top: 0; margin-bottom: 0">&nbsp;
+</p>
+<p style="margin-top: 0; margin-bottom: 0"><b>
+Dettagli funzionalità riguardo la composizione dei numeri (chiamate uscenti):</b></p>
+<ul>
+	<li>
+	<p style="margin-top: 0; margin-bottom: 0"><b>Metodo di Fase: Determina come vengono composte le chiamate.<br>
+&nbsp;</b></li>
+	
+	<ul type="disc"><li>
+	<p style="margin-top: 0; margin-bottom: 0"><b>Metodo di Fase 1 (One-Stage Dialing):</b> Invia l'intero numero in una 
+	volta. Questo è generalmente il metodo preferito perché è più semplice e più 
+	compatibile con i moderni sistemi VoIP.<b><br>&nbsp;</b></li>
+	<li>
+	<p style="margin-top: 0; margin-bottom: 0"><b>Metodo di Fase 2 (Two-Stage Dialing):</b> Richiede la composizione di un 
+	codice di accesso (ad esempio '9') per ottenere una linea esterna, attendere 
+	un secondo tono di linea e quindi comporre il numero completo. 
+Questo metodo potrebbe essere necessario per alcuni provider PSTN o 
+configurazioni specifiche.</li>
+</ul><br>
+	<li><p style="margin-top: 0; margin-bottom: 0"><b>Piano di Composizione:</b> Definisce i formati numerici consentiti per le chiamate 
+in uscita. L'esempio &quot;{ [*x]+ }&quot; consente numeri che iniziano con un asterisco, 
+seguito da qualsiasi cifra, o solo cifre. Modificando questo piano, puoi 
+limitare le chiamate in uscita a numeri specifici o bloccare determinate 
+chiamate. Ad esempio, potresti voler consentire solo chiamate a numeri nazionali 
+o bloccare le chiamate a numeri internazionali.<br>&nbsp;<br>
+	<li><b>Lunghezza Cifra DTMF:</b> Controlla la durata di ciascun tono DTMF (i suoni che il 
+telefono emette quando si preme un numero). <br>
+Valori più alti (ad esempio 200 ms) producono toni più lunghi.<br>
+Valori più bassi (ad esempio 50 ms) producono toni più brevi.<br>
+	Questa impostazione è utile per risolvere problemi di compatibilità con 
+	alcuni sistemi telefonici che potrebbero non riconoscere i toni se sono 
+	troppo corti o troppo lunghi.<br>&nbsp;<li><b>Pausa Composizione DTMF:</b> Imposta la pausa tra le cifre DTMF. <br>
+Aumentare questo valore introduce una pausa più lunga tra i toni, utile se il 
+sistema ricevente ha difficoltà a distinguere i toni composti rapidamente.<br>
+Diminuire questo valore riduce la pausa tra i toni.&nbsp;<br>&nbsp;</li>
+	<li><p style="margin-top: 0; margin-bottom: 0"><b>Ritardo Minimo Prima di Comporre il Numero PSTN:
+	</b>Introduce un ritardo prima che 
+l'ATA invii il numero composto alla linea telefonica. <br>
+Aumentare questo valore (ad esempio a 1000 ms) aggiunge un ritardo di 1 secondo, 
+che può essere utile su linee telefoniche più vecchie o per dare al sistema il 
+tempo di rilevare il tono di linea.<br>
+Diminuire questo valore riduce il ritardo prima della composizione.</ul>
+<p style="margin-top: 0; margin-bottom: 0">&nbsp;</p>
+<p style="margin-top: 0; margin-bottom: 0">&nbsp;</p>
+
+<p align="center" style="margin-top: 0; margin-bottom: 0"><b>
+<span style="color: #FF0000; font-size: 24px;">PARTE 1: INSTALLAZIONE E CONFIGURAZIONE 
+DETTAGLIATA DI FREEPBX PER L'ITALIA</span></b></p>
+
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+<b>FreePBX</b> è un'interfaccia grafica (GUI) open 
+source che semplifica la configurazione e la gestione di un sistema telefonico 
+VoIP basato su Asterisk. Consente di creare e gestire centralini telefonici 
+aziendali o privati, supportando funzionalità avanzate come la gestione delle 
+chiamate, il voicemail, la segreteria telefonica, i gruppi di chiamata, le code 
+di chiamata, e molto altro.</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+&nbsp;<br>
+<b>A cosa serve FreePBX:</b></p>
+<ul>
+	<li>
+	<p align="left" style="margin-top: 0; margin-bottom: 0">
+	<b>Gestione chiamate VoIP:</b> consente di 
+	configurare numeri di telefono, centralini, e diramazioni per la gestione 
+	delle chiamate in ingresso e uscita.<br>
+&nbsp;</li>
+	<li>
+	<p align="left" style="margin-top: 0; margin-bottom: 0">
+	<b>Funzionalità avanzate:</b> supporta la 
+	registrazione delle chiamate, la gestione dei voicemail, la gestione delle 
+	chiamate in conferenza, la gestione delle code e dei gruppi di chiamata, 
+	ecc.<br>
+&nbsp;</li>
+	<li>
+	<p align="left" style="margin-top: 0; margin-bottom: 0">
+	<b>Scalabilità:</b> è adatto sia per piccole 
+	aziende che per sistemi complessi, e supporta integrazioni con dispositivi 
+	SIP e altri strumenti VoIP.</li>
+</ul>
+<p align="left" style="margin-top: 0; margin-bottom: 0"><b>
+&nbsp;</b></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+<b>Dove scaricarlo:</b><br>
+&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+FreePBX può essere scaricato dal sito ufficiale<br>
+<a href="https://www.freepbx.org/downloads/">https://www.freepbx.org/downloads/</a></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+Fino alla versione 16, è disponibile anche come 
+installazione ISO (per creare un sistema operativo completo con FreePBX 
+preinstallato). Dalla versione 17, sembra non vengano più rilasciate ISO, ma 
+occorre installare FreePBX sotto una versione Debian.<br>
+&nbsp;<br>
+<a href="https://sangomakb.atlassian.net/wiki/spaces/FP/pages/295403538">
+https://sangomakb.atlassian.net/wiki/spaces/FP/pages/295403538</a></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+
+<a href="https://sangomakb.atlassian.net/wiki/spaces/FP/pages/230326391/FreePBX+17+Installation">
+https://sangomakb.atlassian.net/wiki/spaces/FP/pages/230326391/FreePBX+17+Installation</a></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+&nbsp;<br>
+<a href="https://sangomakb.atlassian.net/wiki/spaces/FP/pages/230850573/Upgrading+to+FreePBX+17">
+https://sangomakb.atlassian.net/wiki/spaces/FP/pages/230850573/Upgrading+to+FreePBX+17</a></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+
+<a href="https://sangomakb.atlassian.net/wiki/spaces/PG/pages/20807752/Backup+and+Restore+Version+15">
+https://sangomakb.atlassian.net/wiki/spaces/PG/pages/20807752/Backup+and+Restore+Version+15</a></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+
+<a href="https://sangomakb.atlassian.net/wiki/spaces/PG/pages/41746505/fwconsole+commands+15">
+https://sangomakb.atlassian.net/wiki/spaces/PG/pages/41746505/fwconsole+commands+15</a></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+&nbsp;<br>
+A voi la scelta su cosa scaricare. La guida però è strettamente legata alla 
+versione 16, quella scelta da me al momento della mia configurazione.<br>
+&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+<b>Come installarlo (versione 16 scelta da me):</b></p>
+<ul>
+	<li>
+	<p align="left" style="margin-top: 0; margin-bottom: 0">
+	<b>Creare una macchina virtuale o fisica:<br>
+	</b>Se avete un PC con poca potenza (purché x64), potete sfruttare quello 
+	per installare FreePBX. In alternativa, potere usare un software di 
+	virtualizzazione. Io ho scelto ProxMox, ma ce ne sono altri, come VmWare 
+	Player. Assegnate alla macchina virtuale almeno 2 (meglio 3 o 4) Core, con 4 
+	(meglio 5 o 6) Giga di Ram. 40 Giga di Hard Disk dovrebbero essere 
+	sufficienti, ma se pensate di usare la macchina come archiviazione per 
+	l’audio telefonico registrato e avete il disco rigido (fisico) grande, non 
+	siate tirchi, altrimenti rischiate di dover reinstallare tutto il sistema 
+	per spazio insufficiente.<br>
+&nbsp; </li>
+	<li>
+	<p align="left" style="margin-top: 0; margin-bottom: 0">
+	<b>Scaricare l'immagine ISO:<br>
+	</b>Vai sul sito ufficiale di FreePBX e scarica l'immagine ISO per 
+	l'installazione.<br>
+	Se stai installando il sistema su una macchina fisica, potresti aver 
+	necessità di creare un supporto di avvio (ad esempio, una chiavetta USB o un 
+	DVD) con il software di tua scelta (come <b>Rufus o balenaEtcher</b>).<br>
+	Se stai installando il sistema su una macchina virtuale, potresti usare il 
+	file ISO scaricato come un DVD virtuale, senza necessità di creare il 
+	supporto di installazione.<br>
+&nbsp;</li>
+	<li>
+	<p align="left" style="margin-top: 0; margin-bottom: 0">
+	<b>Avviare l'installazione:<br>
+	</b>Inserisci il supporto di avvio nel computer su cui vuoi installare 
+	FreePBX, o monta la ISO come un DVD virtuale sulla tua macchina virtuale.<br>
+	Avvia il sistema dal supporto USB o DVD.<br>
+	Segui le istruzioni a schermo per installare FreePBX. Il processo richiederà 
+	la configurazione di rete, la partizione del disco e l'installazione del 
+	sistema operativo di base (CentOS o una distribuzione compatibile).<br>
+&nbsp;</li>
+	<li>
+	<p align="left" style="margin-top: 0; margin-bottom: 0">
+	<b>Configurazione iniziale:<br>
+	</b>Una volta completata l'installazione, potrai accedere all'interfaccia 
+	web di FreePBX tramite un browser utilizzando l'indirizzo IP del server.<br>
+	Completa la configurazione guidata per configurare il sistema (come la 
+	lingua, il fuso orario, le credenziali di amministratore).<br>
+&nbsp;<br>
+	Non verrà chiesto quale IP utilizzare (almeno a me non è stato richiesto). 
+	Per default, a FreePBX potrebbe venire assegnato un IP dinamico dal vostro 
+	router. Dato che stiamo parlando di un server, è <b>VITALE</b> che FreePBX 
+	abbia un IP <b>STATICO</b>. Per far questo, io ho adottato la strategia più 
+	semplice: creare un leases nel router tra il MAC della macchina di FreePBX e 
+	un IP “statico”. Se volete la soluzione più professionale e complessa, 
+	potete assegnare un IP statico a FreePBX direttamente dal terminale linux 
+	del server. Credo che valgano le regole “standard di linux”.<br>
+&nbsp;</li>
+	<li>
+	<p align="left" style="margin-top: 0; margin-bottom: 0">
+	<b>Aggiungere dispositivi e configurare 
+	funzionalità:<br>
+	</b>Puoi aggiungere telefoni SIP, gateway VoIP e configurare le varie 
+	funzionalità del centralino tramite l'interfaccia web.<br>
+	Di seguito, la mia configurazione dettagliata su come usare FreePBX per il 
+	blocco di tutte le chiamate, eccetto i numeri in lista bianca.</li>
+</ul>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+&nbsp;&nbsp;&nbsp; </p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+<span style="color: #FF0000; font-weight: bold;">1) Registrare le 
+estensioni per i telefoni.</span>
+<br>
+Ripetere questa procedura per ogni telefono (estensione) che volete registrare.<br>
+&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+
+<img border="0" src="img/004/001%20extension.png" width="1376" height="469"></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+
+<img border="0" src="img/004/002%20extension.png" width="545" height="405"></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+
+<img border="0" src="img/004/003%20extension.png" width="925" height="866"></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+
+<img border="0" src="img/004/004%20extension.png" width="828" height="905"></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+
+<img border="0" src="img/004/005%20extension.png" width="1291" height="821"><img border="0" src="img/004/006%20extension.png" width="904" height="737"></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+
+<img border="0" src="img/004/007%20extension.png" width="799" height="885"></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+
+<img border="0" src="img/004/008%20extension.png" width="1007" height="846"></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+
+<img border="0" src="img/004/009%20extension.png" width="833" height="957"></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+
+<img border="0" src="img/009/001%20-%20Utenti.png" width="1226" height="844"></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+
+<img border="0" src="img/009/002%20-%20Dettagli%20utenti.png" width="1315" height="924"></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0"><b>
+<span style="color: #FF0000;">2) Creare un gruppo per lo squillo 
+di un numero limitato di telefoni, utile soprattutto per le chiamate tra interni 
+(facoltativo).</span>
+</b></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+
+<img border="0" src="img/005/001%20gruppi.png" width="780" height="916"></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+
+<img border="0" src="img/005/002%20gruppi.png" width="844" height="1140"></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0"><b>
+&nbsp;</b></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0"><b>
+<span style="color: #FF0000;">3) Creare un nuovo Trunk in 
+FreePBX:</span>
+</b></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+
+<img border="0" src="img/002/Trunk01.png" width="491" height="602"></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+
+<img border="0" src="img/002/Trunk02.png" width="1067" height="609"></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+
+<img border="0" src="img/002/Trunk03.png" width="533" height="618"></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+
+<img border="0" src="img/002/Trunk04.png" width="836" height="657"></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+
+<img border="0" src="img/002/Trunk05.png" width="615" height="734"></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+
+<img border="0" src="img/002/Trunk06.png" width="1106" height="901"></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+
+<img border="0" src="img/002/Trunk07.png" width="600" height="218"></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+
+<img border="0" src="img/002/Trunk08.png" width="534" height="876"></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+<span style="color: #FF0000; font-weight: bold;">4) Creare la rotta in 
+uscita, per le chiamate uscenti.</span>
+<br>
+<b>N.B.</b> Il “Dial Patterns” è settato con <b>X.</b><br>
+Questo dovrebbe accettare qualsiasi cosa in composizione. Personalizzando la 
+stringa, è possibile bloccare numeri in uscita, come le chiamate verso numeri a 
+pagamento, chiamate internazionali, o qualunque cosa vogliate. La versione 
+gratuita di FreePBX dovrebbe avere qualche limitazione riguardo la 
+configurazione avanzata di Dial Patterns, ma se non avete esigenze particolari, 
+dovrebbe essere sufficiente.<br>
+&nbsp; </p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+
+<img border="0" src="img/003/Rotta%20uscita%2001.png" width="746" height="339"></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+
+<img border="0" src="img/003/Rotta%20uscita%2002.png" width="807" height="668"></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+
+<img border="0" src="img/003/Rotta%20uscita%2003.png" width="865" height="466"></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+
+<img border="0" src="img/003/finale.png" width="1797" height="277"></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+&nbsp; </p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0"><b>
+<span style="color: #FF0000;">5) Creare la rotta in entrata per 
+le chiamate entranti.</span>
+</b></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+
+<img border="0" src="img/006/Rotta%20entrata%2001.png" width="1100" height="334"></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+
+<img border="0" src="img/006/Rotta%20entrata%2002.png" width="680" height="640"></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+
+<img border="0" src="img/006/Rotta%20entrata%2003.png" width="850" height="395"></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+&nbsp; </p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+<b><span style="color: #FF0000;">6) Adesso non 
+potete ricevere nessuna telefonata.</span>
+ I telefoni non squilleranno mai. Ora 
+entriamo “nel cuore della soluzione”,<span style="color: #FF0000;"> creando la nostra 
+“lista bianca” con i numeri autorizzati. </span>Capirete perché ho messo tra 
+virgolette “lista bianca”.</b>
+Potete importare tutti i contatti dalla vostra rubrica di Gmail, ma bisognerà 
+“faticare”, perché la cosa è un po’ complessa. Di seguito verrà illustrato come 
+fare.<br>
+&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+
+<img border="0" src="img/007/001%20lista%20bianca.png" width="363" height="676"></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+
+<img border="0" src="img/007/002%20lista%20bianca.png" width="874" height="654"></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+
+<img border="0" src="img/007/003%20lista%20bianca.png" width="1212" height="275"></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+&nbsp; </p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+&nbsp; </p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+<b><span style="color: #FF0000;">7) Come importare tutti i contatti della vostra rubrica Gmail.</span>
+</b><br>
+Per prima cosa, esportate la vostra rubrica da Gmail in formato <b>csv</b>. 
+Seguite le guide di Google. Successivamente, con Excel, importate il file <b>csv</b> 
+e lavoratelo, affinché abbia questa struttura:<br>
+&nbsp;<br>
+<i>number,description<br>
+0123456789,<br>
+0234567890,<br>
+0345678901,</i><br>
+&nbsp;<br>
+Non spiego in dettaglio i passaggi di esportazione della rubrica da Gmail e la 
+lavorazione del file csv in Excel. Rimando ad altra documentazione online per 
+questo. Anche perché, esistono più software per lavorare i files csv, che sono 
+file testuali. Se non avete Excel o usate altri software free, le spiegazioni 
+mirate a Excel sarebbero inutili.<br>
+&nbsp;<br>
+<i>number,description</i> = <b>E’ VITALE. Deve essere presente nel file csv.</b><br>
+Le altre righe sono i numeri di telefono. Ogni numero deve essere seguito da 
+virgola, incluso l’ultimo. Eliminate i prefissi nazionali “+39” e eventuali 
+spazi tra le cifre. Inserite nella lista anche gli interni (6001 per esempio) e 
+i numeri dei gruppi se li avete creati. Non inserite invece il numero di gateway 
+di HT813 (5000 in questo caso). Una volta preparato il file, fare riferimento 
+alle seguenti immagini…………<br>
+&nbsp; </p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+
+<img border="0" src="img/008/001%20-%20importa.png" width="215" height="317"></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+
+<img border="0" src="img/008/002%20-%20importa.png" width="1018" height="416"></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+
+<img border="0" src="img/008/003%20-%20importa.png" width="1009" height="370"></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+&nbsp; </p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+&nbsp; </p>
+<p align="left" style="margin-top: 0; margin-bottom: 0"><b>
+N.B.: Ricordatevi di cliccare sempre sul bottone 
+“Submit” di FreePBX e di applicare le configurazioni alla fine, cliccando sul 
+bottone rosso in alto “Applica”, che comparirà subito dopo aver cliccato su “Submit”.</b></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">&nbsp;</p>
+
+<p align="center" style="margin-top: 0; margin-bottom: 0"><b>
+<span style="color: #FF0000; font-size: 24px;">PARTE 2: CONFIGURAZIONE DETTAGLIATA DEL 
+GRANDSTREAM HT813 PER L'ITALIA</span>
+</b></p>
+
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+&nbsp; </p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+Per garantire il corretto funzionamento dell'HT813 
+con la rete telefonica italiana e per integrarlo con il server FreePBX, è 
+fondamentale configurare in maniera ottimale le impostazioni del Grandstream. 
+Questo dispositivo è configurabile da browser Web. Non spiego nei dettagli come 
+entrare nell’interfaccia Web, ipotizzando che, chi sta leggendo questa guida, 
+abbia familiarità con le reti e gli indirizzi IP.<br>
+<b>Credenziali di default: (IP = `192.168.2.1`, username = `admin`, password= `admin`).</b><br>
+Di seguito riporto le parti importanti della mia configurazione, il lavoro di 
+una lunga fase di sperimentazione. Se ritenete che qualche settaggio sia 
+migliorabile, potete voi stessi aggiungere suggerimenti.</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+&nbsp; </p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+
+<img border="0" src="img/001/basing%20setting%20P1.png" width="866" height="618"></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+
+<img border="0" src="img/001/basing%20setting%20P2.png" width="866" height="766"></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+
+<img border="0" src="img/001/Advanced%20Setting%20P1.png" width="861" height="698"></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+
+<img border="0" src="img/001/Advanced%20Setting%20P2.png" width="864" height="647"></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+
+<img border="0" src="img/001/Advanced%20Setting%20P3.png" width="860" height="598"></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+
+<img border="0" src="img/001/Advanced%20Setting%20P4.png" width="858" height="916"></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+&nbsp; </p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+<b>Dial Tone:</b> 
+f1=440@-17,c=200/200;f2=440@-17,c=600/1000;<br>
+<b>Ringback Tone: </b>f1=440@-17,f2=480@-17,c=2000/4000;<br>
+<b>Busy Tone: </b>f1=480@-21,f2=620@-21,c=500/500;<br>
+<b>Reorder Tone:</b> f1=480@-21,f2=620@-21,c=250/250;<br>
+<b>Confirmation Tone:</b> f1=350@-11,f2=440@-11,c=100/100-100/100-100/100;<br>
+<b>Call Waiting Tone:</b> f1=440@-13,c=300/10000;<br>
+<b>Prompt Tone:</b> f1=350@-17,f2=440@-17,c=0/0;<br>
+&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+
+<img border="0" src="img/001/FXS%20p1.png" width="872" height="713"></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+
+<img border="0" src="img/001/FXS%20p2.png" width="868" height="948"></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+
+<img border="0" src="img/001/FXS%20p3.png" width="867" height="938"></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+
+<img border="0" src="img/001/FXS%20p4.png" width="863" height="900"></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+
+<img border="0" src="img/001/FXS%20p5.png" width="861" height="804"></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+
+<img border="0" src="img/001/FXS%20p6.png" width="846" height="323"></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+<b>Primary SIP Server:</b> Indirizzo IP di FreePBX<br>
+<b>SIP User ID:</b> Estensione 6001 creata in FreePBX<br>
+<b>Authenticate ID:</b> Uguale a SIP User ID<br>
+<b>Authenticate Password:</b> Stessa password impostata in FreePBX (estensione 
+6001)<br>
+<b>Dial Plan:</b> { [*x]+ }<br>
+<b>Ring Tone n:</b> c=2000/4000;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+
+<img border="0" src="img/001/FXO%20p1.png" width="870" height="849"></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+
+<img border="0" src="img/001/FXO%20p2.png" width="872" height="894"></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+
+<img border="0" src="img/001/FXO%20p3.png" width="872" height="902"></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+
+<img border="0" src="img/001/FXO%20p4.png" width="866" height="900"></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+
+<img border="0" src="img/001/FXO%20p5.png" width="870" height="804"></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+
+<img border="0" src="img/001/FXO%20p6.png" width="818" height="295"></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+<b>Primary SIP Server:</b> Indirizzo IP di FreePBX<br>
+<b>SIP User ID:</b> 5000 (Sarà il gateway, per il Trunk e le chiamate uscenti)<br>
+<b>Authenticate ID:</b> Uguale a SIP User ID<br>
+<b>Authenticate Password: </b>Lasciare bianco<br>
+<b>Dial Plan: </b>{ [*x]+ }</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+&nbsp; </p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+&nbsp; </p>
+<p align="left" style="margin-top: 0; margin-bottom: 0"><b>
+Lo stato finale del Grandstream 
+apparirà così:</b></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+
+<img border="0" src="img/finale.png" width="872" height="564"></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0"><b>
+N.B.: Ricordatevi SEMPRE di cliccare su `Apply` in 
+fondo alla pagina, per salvare e applicare le impostazioni.<br>
+Terminata la configurazione, <span style="color: #FF0000;">E’ VITALE riavviare FreePBX + 
+HT813.</span>
+</b></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0"><b>
+Conclusioni:</b></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+<b><span style="color: #FF0000;">Ora testate il tutto.</span>
+</b> 
+Provate a chiamare, a ricevere telefonate… se tutto è andato bene e se io non ho 
+tralasciato nessun passaggio nella guida, dovreste aver concluso magnificamente 
+l’obiettivo. Se avete telefoni VoIP che volete registrare, create per ogni 
+telefono un’estensione, come avete fatto per il 6001 (FXS del HT813). Creata 
+l’estensione, inserite il nome utente e la chiave nel vostro telefono VoIP, 
+secondo la sua specifica configurazione.<br>
+Se scoprite errori nella guida segnalateli.<br>
+&nbsp;<br>
+<b>Spero che troviate interessante il tutorial.</b><br>
+&nbsp;<br>
+&nbsp;<br>
+&nbsp;<br>
+<b>Link utili e ringraziamenti:</b><br>
+<br>Per il download del firmware:<br>
+<a href="https://www.grandstream.com/support/firmware">
+https://www.grandstream.com/support/firmware</a></p>
+
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+&nbsp;<br>
+Ringrazio <b>cfusco</b> per avermi incoraggiato a scrivere la guida e per avermi fornito prezioso materiale come bozza:<br>
+<a href="https://community.ipfire.org/u/cfusco/summary">
+https://community.ipfire.org/u/cfusco/summary</a></p>
+
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+&nbsp;<br>
+Ringrazio il forum per aver risolto un mio problema:<br>
+<a href="https://community.freepbx.org/t/make-outgoing-calls-by-eliminating-two-step-dialing/102863">
+https://community.freepbx.org/t/make-outgoing-calls-by-eliminating-two-step-dialing/102863</a></p>
+
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+&nbsp;<br>
+Un altro tutorial che devo ringraziare:<br>
+<a href="https://afonsogarcia.dev/2023/03/04/freepbx-%E2%9D%A4%EF%B8%8F-grandstream-ht813/">
+https://afonsogarcia.dev/2023/03/04/freepbx-%E2%9D%A4%EF%B8%8F-grandstream-ht813/</a></p>
+
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+&nbsp;<br>
+Per usare i vostri PC e i vostri cellulari come telefoni VoIP, registrandoli 
+come un’estensione a FreePBX:<br>
+<a href="https://www.linphone.org/home/">https://www.linphone.org/home/</a></p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+&nbsp;<br>
+Codici utili da digitare nei telefoni:<br>
+http:// IP di FreePBX /admin/config.php?display=featurecodeadmin</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+&nbsp;<br>
+&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+&nbsp; <br>
+<b>Operazioni varie, appunti:</b><br>
+&nbsp;<br>
+<b>Per trasferire una chiamata:</b></p>
+<ul>
+	<li>
+	<p align="left" style="margin-top: 0; margin-bottom: 0">
+	&nbsp;##</li>
+	<li>
+	<p align="left" style="margin-top: 0; margin-bottom: 0">
+	Attendere la risposta “Trasferimento”</li>
+	<li>
+	<p align="left" style="margin-top: 0; margin-bottom: 0">
+	Digitare il numero di interno, 6002 ad 
+	esempio, che si riferisce ad un telefono registrato o a un gruppo di 
+	telefoni.</li>
+</ul>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+&nbsp;</p>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+<b>Ora esatta: </b>*60<br>
+&nbsp;<br>
+<b>Cartella dove si trovano le telefonate registrate di FreePBX (catalogate per 
+data)</b>:<br>
+/var/spool/asterisk/monitor/<br>
+&nbsp;<br>
+<b>Da terminale, per aggiornare, pulire brutalmente i log di FreePBX e liberare 
+spazio:</b><br>
+<span style="color: #FF0000; font-weight: bold;">(ATTENZIONE!!!! Un uso errato o improprio può causare 
+danni al sistema operativo. Lanciate i comandi solo su piattaforme di testing o 
+se si è certi di cosa si stia facendo).</span>
+<br>
+---------------------------------------------------------------------<br>
+Aggiornamenti:<br>
+Comando per aggiornare il sistema:<br>
+&nbsp;<br>
+<i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; yum update -y</i><br>
+&nbsp;<br>
+Questo comando aggiornerà tutti i pacchetti del sistema, inclusi quelli relativi 
+a FreePBX e CentOS. Dopo aver eseguito l'aggiornamento, ti consiglio di 
+riavviare il sistema per applicare tutte le modifiche.<br>
+&nbsp;<br>
+<i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; fwconsole ma upgradeall</i><br>
+&nbsp;<br>
+Questo aggiornerà tutti i moduli di FreePBX all'ultima versione disponibile 
+compatibile con il sistema.<br>
+&nbsp;<br>
+<i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sudo reboot</i><br>
+---------------------------------------------------------------------<br>
+#Pulizia DB chiamate<br>
+<i>mysql -u root -p asteriskcdrdb<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+password: lasciare vuoto<br>
+DELETE FROM cdr;<br>
+EXIT;</i><br>
+&nbsp;<br>
+&nbsp;<br>
+# Pulizia di pacchetti inutilizzati<br>
+<i>sudo yum clean all &amp;&amp; sudo yum autoremove<br>
+</i>&nbsp;<br>
+# Pulizia dei log<br>
+<i>sudo fwconsole stop</i> <b>(IMPORTANTE STOPPARE PRIMA DI CANCELLARE)</b><br>
+<i>sudo rm /var/log/asterisk/full &amp;&amp; sudo rm -f /var/log/asterisk/* &amp;&amp; sudo rm 
+-f /var/log/httpd/* &amp;&amp; sudo rm -f /var/log/messages &amp;&amp; sudo rm -f /var/log/asterisk/*.gz 
+&amp;&amp; sudo rm -f /var/log/httpd/*.gz</i><br>
+&nbsp;<br>
+# Rimozione file temporanei<br>
+<i>sudo rm -rf /tmp/*<br>
+sudo rm -rf /var/tmp/*</i><br>
+&nbsp;<br>
+<i>sudo fwconsole start </i><b>(RIAVVIO AL TERMINE)</b><i><br>
+sudo reboot </i><b>(VITALE ALLA FINE)</b><br>
+---------------------------------------------------------------------<br>
+&nbsp;<br>
+&nbsp;<br>
+&nbsp;<br>
+<b>Glossario dei termini VoIP:</b></p>
+<ul>
+	<li>
+	<p align="left" style="margin-top: 0; margin-bottom: 0">
+	<b>VoIP (Voice over IP):</b> Tecnologia che 
+	consente di effettuare chiamate telefoniche tramite Internet.<br>
+&nbsp;</li>
+	<li>
+	<p align="left" style="margin-top: 0; margin-bottom: 0">
+	<b>ATA (Analog Telephone Adapter):</b> 
+	Dispositivo che converte i segnali analogici in segnali digitali VoIP e 
+	viceversa.<br>
+&nbsp;</li>
+	<li>
+	<p align="left" style="margin-top: 0; margin-bottom: 0">
+	<b>PSTN (Public Switched Telephone Network):</b> 
+	La rete telefonica pubblica commutata tradizionale.<br>
+&nbsp;</li>
+	<li>
+	<p align="left" style="margin-top: 0; margin-bottom: 0">
+	<b>SIP (Session Initiation Protocol):</b> 
+	Protocollo utilizzato per stabilire, gestire e terminare sessioni di 
+	comunicazione multimediale, come le chiamate VoIP.<br>
+&nbsp;</li>
+	<li>
+	<p align="left" style="margin-top: 0; margin-bottom: 0">
+	<b>Codec:</b> Algoritmo utilizzato per 
+	comprimere e decomprimere i segnali audio per la trasmissione su VoIP.<br>
+&nbsp;</li>
+	<li>
+	<p align="left" style="margin-top: 0; margin-bottom: 0">
+	<b>Jitter:</b> Variazione nel ritardo dei 
+	pacchetti di dati trasmessi su una rete, che può causare distorsioni nella 
+	voce.<br>
+&nbsp;</li>
+	<li>
+	<p align="left" style="margin-top: 0; margin-bottom: 0">
+	<b>Latency:</b> Ritardo nella trasmissione dei 
+	dati su una rete, che può causare un'eco durante le chiamate VoIP.<br>
+&nbsp;</li>
+	<li>
+	<p align="left" style="margin-top: 0; margin-bottom: 0">
+	<b>QoS (Quality of Service):</b> Insieme di 
+	tecniche utilizzate per garantire la qualità delle comunicazioni VoIP su una 
+	rete.<br>
+&nbsp;</li>
+	<li>
+	<p align="left" style="margin-top: 0; margin-bottom: 0">
+	<b>FXS (Foreign Exchange Station):</b> Porta 
+	che simula una linea telefonica tradizionale, utilizzata per collegare 
+	telefoni analogici. L'HT813 ha una porta FXS per collegare il tuo telefono 
+	analogico.<br>
+&nbsp;</li>
+	<li>
+	<p align="left" style="margin-top: 0; margin-bottom: 0">
+	<b>FXO (Foreign Exchange Office):</b> Porta 
+	che si connette a una linea telefonica PSTN, come quella fornita dal tuo 
+	operatore telefonico. L'HT813 ha una porta FXO per collegarsi alla tua linea 
+	analogica.<br>
+&nbsp;</li>
+	<li>
+	<p align="left" style="margin-top: 0; margin-bottom: 0">
+	<b>Trunk:</b> In questo contesto, il trunk è 
+	il collegamento tra l'ATA Grandstream HT813 e il server FreePBX. Rappresenta 
+	il canale attraverso il quale le chiamate vengono instradate tra la linea 
+	analogica e il sistema VoIP.</li>
+</ul>
+<p align="left" style="margin-top: 0; margin-bottom: 0">
+&nbsp;<br>
+<b>Ricorda: Questa guida fornisce una panoramica generale. Per una 
+configurazione ancora più dettagliata, consultare il manuale utente del 
+Grandstream HT813 e la documentazione di FreePBX.</b></p>
+
+</body>
+
+</html>
