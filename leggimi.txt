@@ -1,6 +1,4 @@
-Guida al Blocco delle Chiamate con FreePBX e HT813
-
-Introduzione
+# ht813-freepbx-italia-block-guide
 
 In questo progetto, descrivo come bloccare automaticamente le chiamate indesiderate utilizzando una lista bianca con FreePBX e HT813. Tutti i numeri non memorizzati nella lista bianca vengono bloccati, evitando così lo spam e le chiamate di telemarketing. Questo metodo è particolarmente utile se non si utilizza il telefono per lavoro e si ricevono molte chiamate indesiderate da numeri sempre diversi.
 Nel caso preferiate una strategia diversa, con poche modifiche è possibile configurare una lista nera, bloccando solo numeri problematici. Inoltre, per non perdere telefonate importanti, è possibile attivare la segreteria per le chiamate rifiutate.
@@ -8,3 +6,6 @@ FreePBX e il VoIP offrono molteplici funzionalità, quindi questa guida è solo 
 
 Mi piacerebbe sentire i tuoi suggerimenti e le tue modifiche! Puoi lasciare commenti, fare pull request o contribuire in qualsiasi altro modo per migliorare questa guida.
 Se hai domande o suggerimenti, non esitare a contattarmi attraverso i canali di GitHub.
+
+This work is licensed under Creative Commons Attribution-ShareAlike 4.0 International
+https://creativecommons.org/licenses/by-sa/4.0/?ref=chooser-v1
