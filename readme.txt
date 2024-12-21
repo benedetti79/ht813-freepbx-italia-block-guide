@@ -8,5 +8,4 @@ I would love to hear your suggestions and modifications! Feel free to leave comm
 If you have any questions or suggestions, feel free to reach out to me through GitHub channels.
 
 This work is licensed under Creative Commons Attribution-ShareAlike 4.0 International
-
 https://creativecommons.org/licenses/by-sa/4.0/?ref=chooser-v1
