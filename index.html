@@ -42,6 +42,19 @@ body {
 }
 </style>
 
+<script>
+  // Esegui quando il DOM è pronto
+  document.addEventListener("DOMContentLoaded", function() {
+    // Seleziona tutti gli elementi <a> sulla pagina
+    const links = document.querySelectorAll('a');
+    
+    // Imposta target="_blank" per ciascun link
+    links.forEach(function(link) {
+      link.setAttribute('target', '_blank');
+    });
+  });
+</script>
+
 </head>
 
 <body>
