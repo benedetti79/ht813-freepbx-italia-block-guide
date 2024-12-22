@@ -4,7 +4,7 @@ In this project, I describe how to automatically block unwanted calls using a wh
 If you prefer a different strategy, with a few modifications you can configure a blacklist, blocking only problematic numbers. Additionally, to avoid missing important calls, you can activate voicemail for rejected calls.
 FreePBX and VoIP offer many features, so this guide is just a starting point. I hope you will contribute with comments and suggestions to improve the system.
 
-I would love to hear your suggestions! You can leave comments or contribute to improve this guide.
+I would love to hear your suggestions! You can leave comments to improve this guide.
 If you have any questions or suggestions, feel free to reach out to me through GitHub channels.
 
 https://benedetti79.github.io/ht813-freepbx-italia-block-guide/
