@@ -4,8 +4,11 @@ In questo progetto, descrivo come bloccare automaticamente le chiamate indesider
 Nel caso preferiate una strategia diversa, con poche modifiche è possibile configurare una lista nera, bloccando solo numeri problematici. Inoltre, per non perdere telefonate importanti, è possibile attivare la segreteria per le chiamate rifiutate.
 FreePBX e il VoIP offrono molteplici funzionalità, quindi questa guida è solo un punto di partenza. Spero che possiate contribuire con commenti e suggerimenti per migliorare il sistema.
 
-Mi piacerebbe sentire i tuoi suggerimenti e le tue modifiche! Puoi lasciare commenti, fare pull request o contribuire in qualsiasi altro modo per migliorare questa guida.
+Mi piacerebbe sentire i tuoi suggerimenti! Puoi lasciare commenti o contribuire per migliorare questa guida.
 Se hai domande o suggerimenti, non esitare a contattarmi attraverso i canali di GitHub.
+
+https://benedetti79.github.io/ht813-freepbx-italia-block-guide/
+https://github.com/benedetti79/ht813-freepbx-italia-block-guide
 
 This work is licensed under Creative Commons Attribution-ShareAlike 4.0 International
 https://creativecommons.org/licenses/by-sa/4.0/?ref=chooser-v1
