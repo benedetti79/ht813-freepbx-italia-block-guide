@@ -503,14 +503,33 @@ FreePBX:</span>
 <p align="left" style="margin-top: 0; margin-bottom: 0">
 <span style="color: #FF0000; font-weight: bold;">4) Creare la rotta in 
 uscita, per le chiamate uscenti.</span>
-<br>
-<b>N.B.</b> Il “Dial Patterns” è settato con <b>X.</b><br>
+<br><br><b>SCELTA 1:</b> Il “Dial Patterns” è settato con <b>X.</b><br>
 Questo dovrebbe accettare qualsiasi cosa in composizione. Personalizzando la 
 stringa, è possibile bloccare numeri in uscita, come le chiamate verso numeri a 
 pagamento, chiamate internazionali, o qualunque cosa vogliate. La versione 
 gratuita di FreePBX dovrebbe avere qualche limitazione riguardo la 
 configurazione avanzata di Dial Patterns, ma se non avete esigenze particolari, 
-dovrebbe essere sufficiente.<br>
+dovrebbe essere sufficiente.<br><br>
+
+
+<b>SCELTA 2:</b> Personalizzazione del “Dial Patterns”. (Blocco di ogni chiamata uscente verso qualsiasi altro numero fuori dai seguenti schemi).<br>
+<br>Per abilitare le chiamate uscenti verso i numeri fissi nazionali italiani che iniziano con "0", puoi aggiungere questi pattern nell'Outbound Route:<br>
+<b>0XXXXXXX</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;8 cifre<br>
+<b>0XXXXXXXX</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;9 cifre<br>
+<b>0XXXXXXXXX</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;10 cifre<br>
+<b>0XXXXXXXXXX</b>&nbsp;&nbsp;&nbsp;&nbsp;11 cifre<br>
+<br>
+Per abilitare le chiamate uscenti verso i cellulari italiani, puoi aggiungere questi pattern nell'Outbound Route:<br>
+<b>3XXXXXXXXX</b>&nbsp;&nbsp;&nbsp;&nbsp;Cellulari (10 cifre)<br>
+<br>
+Per abilitare le chiamate uscenti verso i numeri verdi italiani, puoi aggiungere questi pattern nell'Outbound Route:<br>
+<b>800.</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Numeri verdi tradizionali<br>
+<b>803.</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Altra serie di numeri verdi<br>
+<b>00800.</b>&nbsp;&nbsp;&nbsp;&nbsp;Numeri verdi europei<br>
+<br>
+È importante notare che alcuni numeri che iniziano con 80X (dove X è diverso da 0 o 3) potrebbero essere a pagamento, quindi è meglio limitarsi specificamente a 800 e 803 se vuoi consentire solo i numeri effettivamente gratuiti.
+<br>
+
 &nbsp; </p>
 <p align="left" style="margin-top: 0; margin-bottom: 0">
 
@@ -522,7 +541,7 @@ dovrebbe essere sufficiente.<br>
 <p align="left" style="margin-top: 0; margin-bottom: 0">&nbsp;</p>
 <p align="left" style="margin-top: 0; margin-bottom: 0">
 
-<img border="0" src="img/003/Rotta%20uscita%2003.png" width="865" height="466"></p>
+<img border="0" src="img/003/Rotta%20uscita%2003.png"></p>
 <p align="left" style="margin-top: 0; margin-bottom: 0">&nbsp;</p>
 <p align="left" style="margin-top: 0; margin-bottom: 0">
 
